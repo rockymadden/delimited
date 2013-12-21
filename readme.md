@@ -2,7 +2,7 @@
 Simple CSV IO for Scala. Read, write, validate, and transform. Do so line-by-line, all at once, or via streams.
 
 * __Requirements:__ Scala 2.10.x
-* __Documentation:__ Scaladoc
+* __Documentation:__ [Scaladoc](http://rockymadden.com/delimited/scaladoc/)
 * __Issues:__ [Enhancements](https://github.com/rockymadden/delimited/issues?labels=accepted%2Cenhancement&page=1&state=open), [Questions](https://github.com/rockymadden/delimited/issues?labels=accepted%2Cquestion&page=1&state=open), [Bugs](https://github.com/rockymadden/delimited/issues?labels=accepted%2Cbug&page=1&state=open)
 * __Versioning:__ [Semantic Versioning v2.0](http://semver.org/)
 
