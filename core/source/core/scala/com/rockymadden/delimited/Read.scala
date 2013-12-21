@@ -66,9 +66,6 @@ object Read {
 			finally reader.close()
 		}
 
-		def usingTsv(bufferedReader: BufferedReader)(f: DelimitedReader => Unit): Unit =
-			using(bufferedReader, 0x9.toChar)(f)
-
 		def usingWithHeader(
 			bufferedReader: BufferedReader,
 			delimiter: Char = ','
@@ -80,9 +77,6 @@ object Read {
 			})
 			finally reader.close()
 		}
-
-		def usingTsvWithHeader(bufferedReader: BufferedReader)(f: (DelimitedReader, Map[String, Int]) => Unit): Unit =
-			usingWithHeader(bufferedReader, 0x9.toChar)(f)
 	}
 
 
