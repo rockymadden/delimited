@@ -6,6 +6,35 @@ Simple CSV IO for Scala. Read, write, validate, and transform. Do so line-by-lin
 * __Issues:__ [Enhancements](https://github.com/rockymadden/delimited/issues?labels=accepted%2Cenhancement&page=1&state=open), [Questions](https://github.com/rockymadden/delimited/issues?labels=accepted%2Cquestion&page=1&state=open), [Bugs](https://github.com/rockymadden/delimited/issues?labels=accepted%2Cbug&page=1&state=open)
 * __Versioning:__ [Semantic Versioning v2.0](http://semver.org/)
 
+## Depending upon
+The project is available on the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.rockymadden.delimited%22). Adding a dependency to the core sub-project in various build systems (add other sub-projects as needed):
+
+
+__Simple Build Tool:__
+```scala
+libraryDependencies += "com.rockymadden.delimited" % "delimited-core" % "0.0.0"
+```
+
+---
+
+__Gradle:__
+```groovy
+compile 'com.rockymadden.delimited:delimited-core:0.0.0'
+```
+
+---
+
+__Maven:__
+```xml
+<dependency>
+	<groupId>com.rockymadden.delimited</groupId>
+	<artifactId>delimited-core</artifactId>
+	<version>0.0.0</version>
+</dependency>
+```
+
+---
+
 ## Reader Usage
 The recommended usage of ```DelimitedReader``` is via the loan pattern, which is provided by functions in its companion object (shown below). Loaned readers have automatic resource clean up. Read functions ultimately return ```DelimitedLine```s, which is a type alias to ```IndexedSeq[String]```.
 
