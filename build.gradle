@@ -1,0 +1,5 @@
+group = 'com.rockymadden.delimited'
+version = '0.0.0'
+
+allprojects { apply plugin: 'idea' }
+subprojects { repositories { mavenCentral() } }
