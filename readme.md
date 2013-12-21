@@ -1,5 +1,5 @@
 #delimited [![Build Status](https://travis-ci.org/rockymadden/delimited.png?branch=master)](http://travis-ci.org/rockymadden/delimited) [![Coverage Status](https://coveralls.io/repos/rockymadden/delimited/badge.png)](https://coveralls.io/r/rockymadden/delimited)
-Dead simple CSV IO for Scala. Read, write, validate, line-by-line, all at once, or lazily.
+Simple CSV IO for Scala. Read, write, validate, and transform. Do so line-by-line, all at once, or lazily.
 
 * __Requirements:__ Scala 2.10.x
 * __Documentation:__ Scaladoc
@@ -7,42 +7,34 @@ Dead simple CSV IO for Scala. Read, write, validate, line-by-line, all at once, 
 * __Versioning:__ [Semantic Versioning v2.0](http://semver.org/)
 
 ## Reader Usage
-The recommended usage of ```DelimitedReader``` is to do so via the loan pattern. Loaned readers have automatic resource clean up and there is no need to do so manually.
+The recommended usage of ```DelimitedReader``` is via the loan pattern, which is provided by functions in its companion object (shown below). Loaned readers have automatic resource clean up. Read functions ultimately return ```DelimitedLine```s, which is a type alias to ```IndexedSeq[String]```.
 
 ---
 
 __Line by line:__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
-	Iterator.
-		continually(reader.readLine()).
-		takeWhile(_.isDefined).
-		foreach(println)
+	Iterator.continually(reader.readLine()).takeWhile(_.isDefined).foreach(println)
 }
 ```
-The ```readLine``` function returns ```Option[DelimitedLine]```. The end of file is indicated by the return of ```None``` rather than ```Some```. ```DelimitedLine``` is a type alias to ```IndexedSeq[String]``` and is backed by ```Vector[String]```.
+The ```readLine``` function returns ```Option[DelimitedLine]```. The end of file is indicated by the return of ```None``` rather than ```Some```. 
 
 ---
 
 __All at once:__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
-	reader.
-		readAll().
-		foreach(_.foreach(println))
+	reader.readAll().foreach(_.foreach(println))
 }
 ```
-The ```readAll``` function returns ```Option[List[DelimitedLine]]```.
+The ```readAll``` function returns ```Option[Seq[DelimitedLine]]```.
 
 ---
 
 __Lazily:__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
-	reader.
-		readToStream().
-		take(2).
-		foreach(println)
+	reader.readToStream().take(2).foreach(println)
 }
 ```
 The ```readToStream``` function returns ```Stream[DelimitedLine]```.
@@ -65,7 +57,7 @@ Each read and write function accepts zero to many ```StringTransform```s. The ``
 
 ---
 
-__In this scenario, we only want to deal with ASCII characters:__
+__In this scenario, we only want to deal with ASCII characters (via built-in filter transform):__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
 	reader.readLine(StringTransforms.filterAscii)
@@ -74,29 +66,31 @@ DelimitedReader.using("path/to/file.csv") { reader =>
 
 ---
 
-__In this scenario, we only want to deal with alphanumeric ASCII characters:__
+__In this scenario, we only want to deal with alphabetical ASCII characters (via functionally composed built-in filter transforms):__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
 	reader.readLine(
 		StringTransforms.filterAscii andThen
-		StringTransforms.filterNotAlphaNumeric
+		StringTransforms.filterNotAlpha
 	)
 }
 ```
 
 ---
 
-__Custom transform:__
+__In this scenario, we only want to deal with nucleic acid notation characters (via custom transform):__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
-	reader.readLine((s) => s.toCharArray.filter(c => c == 'a' || c == 'b').mkString)
+	reader.readLine((s) => s.toCharArray.filter(c =>
+		c == 'A' || c == 'C' || c == 'G' || c == 'T'
+	).mkString)
 }
 ```
 
 ---
 
 ## Validator Usage
-```DelimitedValidator``` exists to read over each line and ensure one or more checks pass. The ```DelimitedChecks``` object provides a handful of built-in checks, mix and match as needed. Any function meeting the type requirement of ```DelimitedCheck```, which is a type alias to ```(DelimitedLine => Int)```, will work.
+```DelimitedValidator``` exists to ensure files pass one or more checks. The ```DelimitedChecks``` object provides a handful of built-in checks. Any function meeting the type requirement of ```DelimitedCheck```, which is a type alias to ```(DelimitedLine => Int)```, will work.
 
 ---
 
@@ -112,7 +106,7 @@ DelimitedValidator(reader).validate(
 
 ---
 
-__In this scenario, we want to ensure all field lengths are consistent (e.g. each field throughout a file has 2 characters):__
+__In this scenario, we want to ensure all field lengths are consistent (e.g. each field has 2 characters):__
 ```scala
 val reader = DelimitedReader("path/to/file.csv")
 
