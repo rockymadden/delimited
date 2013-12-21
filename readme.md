@@ -52,6 +52,8 @@ DelimitedReader.usingWithHeader("path/to/file.csv") { (reader, header) =>
 ```
 The header type is ```Map[String, Int]```. It maps field values in the first line to their respective index.
 
+---
+
 ## Transform Usage
 Each read and write function accepts zero to many ```StringTransform```s. The ```StringTransforms``` object provides a handful of built-in filters and other useful transforms, which can be functionally composed. Any function meeting the type requirement of ```StringTransform```, which is a type alias to ```(String => String)```, will work.
 
