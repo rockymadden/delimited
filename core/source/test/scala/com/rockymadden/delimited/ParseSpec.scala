@@ -77,7 +77,7 @@ final class ParseSpec extends SpecificationWithJUnit {
 
 			line match {
 				case parser.parse(s) =>
-					s must beEqualTo("one, two, three")
+					s must beEqualTo("one,two,three")
 					success
 				case _ => failure
 			}
@@ -88,7 +88,7 @@ final class ParseSpec extends SpecificationWithJUnit {
 
 			line match {
 				case parser.parse(s) =>
-					s must beEqualTo("one, two, \"three, four\"")
+					s must beEqualTo("one,two,\"three, four\"")
 					success
 				case _ => failure
 			}

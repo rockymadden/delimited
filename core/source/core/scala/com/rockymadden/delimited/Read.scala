@@ -16,12 +16,6 @@ object Read {
 	def toBufferedReader(file: String): BufferedReader =
 		(((f: String) => new File(f)) andThen toBufferedReader)(file)
 
-	@annotation.tailrec
-	def transform(s: String, t: StringTransform*): String = { t match {
-		case Nil => s
-		case head :: tail => transform(head(s), tail: _*)
-	}}
-
 
 	implicit def fileToBufferedReader(f: File): BufferedReader = toBufferedReader(f)
 	implicit def stringToBufferedReader(s: String): BufferedReader = toBufferedReader(s)
@@ -57,7 +51,7 @@ object Read {
 		private val parser = DelimitedParser(delimiter)
 
 		override def readLine(transforms: StringTransform*): Option[DelimitedLine] =
-			(read andThen parser.parse.apply)(br) map { _.map(transform(_, transforms: _*)) }
+			(read andThen parser.parse.apply)(br) map { _.map(transformString(_, transforms: _*)) }
 	}
 
 
@@ -72,8 +66,8 @@ object Read {
 			finally reader.close()
 		}
 
-		def usingTsv(bufferedReader: BufferedReader)
-			(f: DelimitedReader => Unit): Unit = using(bufferedReader, 0x9.toChar)(f)
+		def usingTsv(bufferedReader: BufferedReader)(f: DelimitedReader => Unit): Unit =
+			using(bufferedReader, 0x9.toChar)(f)
 
 		def usingWithHeader(
 			bufferedReader: BufferedReader,
@@ -87,21 +81,19 @@ object Read {
 			finally reader.close()
 		}
 
-		def usingTsvWithHeader(bufferedReader: BufferedReader)
-			(f: (DelimitedReader, Map[String, Int]) => Unit): Unit = usingWithHeader(bufferedReader, 0x9.toChar)(f)
+		def usingTsvWithHeader(bufferedReader: BufferedReader)(f: (DelimitedReader, Map[String, Int]) => Unit): Unit =
+			usingWithHeader(bufferedReader, 0x9.toChar)(f)
 	}
 
 
 	final case class TextReader(bufferedReader: BufferedReader) extends Reader[TextLine](bufferedReader) {
 		override def readLine(transforms: StringTransform*): Option[TextLine] =
-			(read andThen TextParser.parse.apply)(br) map { transform(_, transforms: _*) }
+			(read andThen TextParser.parse.apply)(br) map { transformString(_, transforms: _*) }
 	}
 
 
 	object TextReader {
-		def using(bufferedReader: BufferedReader)
-			(f: TextReader => Unit): Unit = {
-
+		def using(bufferedReader: BufferedReader)(f: TextReader => Unit): Unit = {
 			val reader = apply(bufferedReader)
 
 			try f(reader)

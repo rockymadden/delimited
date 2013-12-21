@@ -1,5 +1,5 @@
 #delimited [![Build Status](https://travis-ci.org/rockymadden/delimited.png?branch=master)](http://travis-ci.org/rockymadden/delimited) [![Coverage Status](https://coveralls.io/repos/rockymadden/delimited/badge.png)](https://coveralls.io/r/rockymadden/delimited)
-Simple CSV IO for Scala. Read, write, validate, and transform. Do so line-by-line, all at once, or lazily.
+Simple CSV IO for Scala. Read, write, validate, and transform. Do so line-by-line, all at once, or via streams.
 
 * __Requirements:__ Scala 2.10.x
 * __Documentation:__ Scaladoc
@@ -31,7 +31,7 @@ The ```readAll``` function returns ```Option[Seq[DelimitedLine]]```.
 
 ---
 
-__Lazily:__
+__Via stream:__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
 	reader.readToStream().take(2).foreach(println)
@@ -51,6 +51,46 @@ DelimitedReader.usingWithHeader("path/to/file.csv") { (reader, header) =>
 }
 ```
 The header type is ```Map[String, Int]```. It maps field values in the first line to their respective index.
+
+---
+
+## Writer Usage
+The recommended usage of ```DelimitedWriter``` is via the loan pattern, which is provided by functions in its companion object (shown below). Loaned writers have automatic resource clean up.
+
+---
+
+__Line-by-line:__
+```scala
+DelimitedWriter.using("path/to/file.csv") { writer =>
+	val line = Some(Vector("field0", "field1", "field2"))
+	writer.writeLine(line)
+}
+```
+
+---
+
+__All-at-once:__
+```scala
+DelimitedWriter.using("path/to/file.csv") { writer =>
+	val lines = Some(Seq(
+		Vector("field0", "field1", "field2"),
+		Vector("field0", "field1", "field2")
+	))
+	writer.writeAll(lines)
+}
+```
+
+---
+
+__Via stream:__
+```scala
+DelimitedReader.using("path/to/file.csv") { => reader
+	DelimitedWriter.using("path/to/anotherfile.csv") { writer =>
+		val lines = reader.readToStream()
+		writer.writeFromStream(lines)
+	}
+}
+```
 
 ---
 

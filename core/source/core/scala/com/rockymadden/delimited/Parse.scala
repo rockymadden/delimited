@@ -59,7 +59,7 @@ object Parse {
 
 			override def unapply(line: Option[DelimitedLine]): Option[String] = line map { l =>
 				val ds = delimiter.toString
-				l map { s => if (s.contains("\"") || s.contains(ds)) "\"" + s + "\"" else s } mkString(ds + " ")
+				l map { s => if (s.contains("\"") || s.contains(ds)) "\"" + s + "\"" else s } mkString(ds)
 			}
 		}
 	}

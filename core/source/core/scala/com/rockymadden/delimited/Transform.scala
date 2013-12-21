@@ -7,6 +7,13 @@ object Transform {
 	type StringTransform = (String => String)
 
 
+	@annotation.tailrec
+	def transformString(s: String, t: StringTransform*): String = { t match {
+		case Nil => s
+		case head :: tail => transformString(head(s), tail: _*)
+	}}
+
+
 	object StringTransforms {
 		private final val Ascii = NumericRange(0x00, 0x7F, 1)
 		private final val ExtendedAscii = NumericRange(0x00, 0x7F, 1)

@@ -13,23 +13,31 @@ final class ReadSpec extends SpecificationWithJUnit {
 	"toBufferedReader()" should {
 		"handle String" in {
 			toBufferedReader(NoneCsv) match {
-				case br: BufferedReader => success
+				case br: BufferedReader =>
+					br.close()
+					success
 				case _ => failure
 			}
 
 			toBufferedReader(ReaderCsv) match {
-				case br: BufferedReader => success
+				case br: BufferedReader =>
+					br.close()
+					success
 				case _ => failure
 			}
 		}
 		"handle File" in {
 			toBufferedReader(new File(NoneCsv)) match {
-				case br: BufferedReader => success
+				case br: BufferedReader =>
+					br.close()
+					success
 				case _ => failure
 			}
 
 			toBufferedReader(new File(ReaderCsv)) match {
-				case br: BufferedReader => success
+				case br: BufferedReader =>
+					br.close()
+					success
 				case _ => failure
 			}
 		}
@@ -38,7 +46,9 @@ final class ReadSpec extends SpecificationWithJUnit {
 	"DelimitedReader readAll()" should {
 		"handle empty lines" in {
 			val reader = DelimitedReader(NoneCsv)
-			val lines = reader.readAll()
+			val lines =
+				try reader.readAll()
+				finally reader.close()
 
 			lines must beSome
 			lines.get.length must beEqualTo(4)
@@ -46,7 +56,9 @@ final class ReadSpec extends SpecificationWithJUnit {
 		}
 		"handle non-empty lines" in {
 			val reader = DelimitedReader(ReaderCsv)
-			val lines = reader.readAll()
+			val lines =
+				try reader.readAll()
+				finally reader.close()
 
 			lines must beSome
 			lines.get.length must beEqualTo(2)
@@ -59,14 +71,17 @@ final class ReadSpec extends SpecificationWithJUnit {
 			val reader = DelimitedReader(NoneCsv)
 			val lines = reader.readToStream() take 2
 
-			lines.length must beEqualTo(2)
-			foreach(lines) { _.length must beBetween(0, 1) }
+			try {
+				lines.length must beEqualTo(2)
+				foreach(lines) { _.length must beBetween(0, 1) }
+			} finally reader.close()
 		}
 		"handle non-empty lines" in {
 			val reader = DelimitedReader(ReaderCsv)
 			val lines = reader.readToStream().head
 
-			lines.length must beEqualTo(3)
+			try lines.length must beEqualTo(3)
+			finally reader.close()
 		}
 	}
 
@@ -74,18 +89,18 @@ final class ReadSpec extends SpecificationWithJUnit {
 		"handle empty lines" in {
 			val reader = DelimitedReader(NoneCsv)
 
-			foreach(Iterator.continually(reader.readLine()).takeWhile(_.isDefined)) { line =>
+			try foreach(Iterator.continually(reader.readLine()).takeWhile(_.isDefined)) { line =>
 				line must beSome
 				line.get.length must beBetween(0, 1)
-			}
+			} finally reader.close()
 		}
 		"handle non-empty lines" in {
 			val reader = DelimitedReader(ReaderCsv)
 
-			foreach(Iterator.continually(reader.readLine()).takeWhile(_.isDefined)) { line =>
+			try foreach(Iterator.continually(reader.readLine()).takeWhile(_.isDefined)) { line =>
 				line must beSome
 				line.get.length must beEqualTo(3)
-			}
+			} finally reader.close()
 		}
 	}
 
@@ -126,12 +141,14 @@ final class ReadSpec extends SpecificationWithJUnit {
 		"handle empty lines" in {
 			val reader = TextReader(NoneCsv)
 
-			foreach(Iterator.continually(reader.readLine()).takeWhile(_.isDefined)) { _ must beSome }
+			try foreach(Iterator.continually(reader.readLine()).takeWhile(_.isDefined)) { _ must beSome }
+			finally reader.close()
 		}
 		"handle non-empty lines" in {
 			val reader = TextReader(ReaderCsv)
 
-			foreach(Iterator.continually(reader.readLine()).takeWhile(_.isDefined)) { _ must beSome }
+			try foreach(Iterator.continually(reader.readLine()).takeWhile(_.isDefined)) { _ must beSome }
+			finally reader.close()
 		}
 	}
 
