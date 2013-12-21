@@ -11,7 +11,7 @@ The recommended usage of ```DelimitedReader``` is via the loan pattern, which is
 
 ---
 
-__Line by line:__
+__Line-by-line:__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
 	Iterator.continually(reader.readLine()).takeWhile(_.isDefined).foreach(println)
@@ -21,7 +21,7 @@ The ```readLine``` function returns ```Option[DelimitedLine]```. The end of file
 
 ---
 
-__All at once:__
+__All-at-once:__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
 	reader.readAll().foreach(_.foreach(println))
