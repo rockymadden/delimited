@@ -1,5 +1,9 @@
+description = 'Simple CSV IO for Scala.'
 group = 'com.rockymadden.delimited'
 version = '0.0.0'
+
+ext.scm = 'scm:git@github.com:rockymadden/delimited.git'
+ext.url = 'http://rockymadden.com/delimited/'
 
 allprojects { apply plugin: 'idea' }
 subprojects { repositories { mavenCentral() } }

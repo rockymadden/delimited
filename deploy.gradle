@@ -1,5 +1,6 @@
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'scala'
 
 def isMavenDeployable = hasProperty('mavenRepositoryUrl') &&
 		hasProperty('mavenRepositoryUsername') &&
@@ -40,6 +41,21 @@ if (isMavenDeployable) {
 					packaging 'jar'
 					url "${parent.project.url}"
 					version "${parent.project.version}"
+
+					developers {
+						developer {
+							id 'rockymadden'
+							name 'Rocky Madden'
+						}
+					}
+
+					licenses {
+						license {
+							name 'MIT'
+							url 'http://opensource.org/licenses/MIT'
+							distribution 'repo'
+						}
+					}
 
 					scm {
 						url "${parent.project.scm}"
