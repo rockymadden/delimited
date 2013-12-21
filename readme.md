@@ -6,12 +6,12 @@ Dead simple CSV IO for Scala. Read, write, validate, line-by-line, all at once, 
 * __Issues:__ [Enhancements](https://github.com/rockymadden/delimited/issues?labels=accepted%2Cenhancement&page=1&state=open), [Questions](https://github.com/rockymadden/delimited/issues?labels=accepted%2Cquestion&page=1&state=open), [Bugs](https://github.com/rockymadden/delimited/issues?labels=accepted%2Cbug&page=1&state=open)
 * __Versioning:__ [Semantic Versioning v2.0](http://semver.org/)
 
-## Reading Usage
+## Reader Usage
 The recommended usage of ```DelimitedReader``` is to do so via the loan pattern. Loaned readers have automatic resource clean up and there is no need to do so manually.
 
 ---
 
-Line by line:
+__Line by line:__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
 	Iterator.
@@ -20,11 +20,11 @@ DelimitedReader.using("path/to/file.csv") { reader =>
 		foreach(println)
 }
 ```
-__Notes:__ The ```readLine``` function returns ```Option[DelimitedLine]```. The end of file is indicated by the return of ```None``` rather than ```Some```. ```DelimitedLine``` is a type alias to ```IndexedSeq[String]``` and is backed by ```Vector[String]```.
+The ```readLine``` function returns ```Option[DelimitedLine]```. The end of file is indicated by the return of ```None``` rather than ```Some```. ```DelimitedLine``` is a type alias to ```IndexedSeq[String]``` and is backed by ```Vector[String]```.
 
 ---
 
-All at once:
+__All at once:__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
 	reader.
@@ -32,11 +32,11 @@ DelimitedReader.using("path/to/file.csv") { reader =>
 		foreach(_.foreach(println))
 }
 ```
-__Notes:__ The ```readAll``` function returns ```Option[List[DelimitedLine]]```.
+The ```readAll``` function returns ```Option[List[DelimitedLine]]```.
 
 ---
 
-Lazily:
+__Lazily:__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
 	reader.
@@ -45,11 +45,11 @@ DelimitedReader.using("path/to/file.csv") { reader =>
 		foreach(println)
 }
 ```
-__Notes:__ The ```readToStream``` function returns ```Stream[DelimitedLine]```.
+The ```readToStream``` function returns ```Stream[DelimitedLine]```.
 
 ---
 
-With header:
+__With header:__
 ```scala
 DelimitedReader.usingWithHeader("path/to/file.csv") { (reader, header) =>
 	reader.readLine() map { line =>
@@ -58,14 +58,14 @@ DelimitedReader.usingWithHeader("path/to/file.csv") { (reader, header) =>
 	}
 }
 ```
-__Notes:__ The header type is ```Map[String, Int]```. It maps field values in the first line to their respective index.
+The header type is ```Map[String, Int]```. It maps field values in the first line to their respective index.
 
 ## Transform Usage
 Each read and write function accepts zero to many ```StringTransform```s. The ```StringTransforms``` object provides a handful of built-in filters and other useful transforms, which can be functionally composed. Any function meeting the type requirement of ```StringTransform```, which is a type alias to ```(String => String)```, will work.
 
 ---
 
-In this scenario, we only want to deal with ASCII characters:
+__In this scenario, we only want to deal with ASCII characters:__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
 	reader.readLine(StringTransforms.filterAscii)
@@ -74,7 +74,7 @@ DelimitedReader.using("path/to/file.csv") { reader =>
 
 ---
 
-In this scenario, we only want to deal with alphanumeric ASCII characters:
+__In this scenario, we only want to deal with alphanumeric ASCII characters:__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
 	reader.readLine(
@@ -86,7 +86,7 @@ DelimitedReader.using("path/to/file.csv") { reader =>
 
 ---
 
-Custom transform:
+__Custom transform:__
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
 	reader.readLine((s) => s.toCharArray.filter(c => c == 'a' || c == 'b').mkString)
@@ -100,7 +100,7 @@ DelimitedReader.using("path/to/file.csv") { reader =>
 
 ---
 
-In this scenario, we want to ensure the number of fields in each line is consistent and that all fields have a length:
+__In this scenario, we want to ensure the number of fields in each line is consistent and that all fields have a length:__
 ```scala
 val reader = DelimitedReader("path/to/file.csv")
 
@@ -112,7 +112,7 @@ DelimitedValidator(reader).validate(
 
 ---
 
-In this scenario, we want to ensure all field lengths are consistent (e.g. each field throughout a file has 2 characters):
+__In this scenario, we want to ensure all field lengths are consistent (e.g. each field throughout a file has 2 characters):__
 ```scala
 val reader = DelimitedReader("path/to/file.csv")
 
