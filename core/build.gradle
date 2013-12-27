@@ -1,14 +1,10 @@
 buildscript {
-	dependencies {
-		classpath 'net.saliman:gradle-cobertura-plugin:2.0.0'
-		classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:0.2.1'
-	}
+	dependencies { classpath 'net.saliman:gradle-cobertura-plugin:2.0.0' }
 	repositories { mavenCentral() }
 }
 
 apply from: '../deploy.gradle'
 apply plugin: 'cobertura'
-apply plugin: 'coveralls'
 apply plugin: 'scala'
 
 cobertura {
