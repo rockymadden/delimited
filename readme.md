@@ -1,5 +1,5 @@
 #delimited [![Build Status](https://travis-ci.org/rockymadden/delimited.png?branch=master)](http://travis-ci.org/rockymadden/delimited) [![Coverage Status](https://coveralls.io/repos/rockymadden/delimited/badge.png)](https://coveralls.io/r/rockymadden/delimited)
-Simple CSV IO for Scala. Read, write, validate, and transform. Do so line-by-line, all at once, or via streams.
+Simple CSV IO for Scala. Read, write, validate, and transform. Do so line-by-line, all at once, or via streams. For anything serious, be sure to checkout [scalaz-stream](https://github.com/scalaz/scalaz-stream) instead.
 
 * __Requirements:__ Scala 2.10.x
 * __Documentation:__ [Scaladoc](http://rockymadden.com/delimited/scaladoc/)
