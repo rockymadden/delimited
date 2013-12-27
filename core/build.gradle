@@ -1,5 +1,5 @@
 buildscript {
-	dependencies { classpath 'net.saliman:gradle-cobertura-plugin:2.0.0' }
+	dependencies { classpath 'net.saliman:gradle-cobertura-plugin:2.2.2' }
 	repositories { mavenCentral() }
 }
 
@@ -16,11 +16,10 @@ compileScala { compileScala.scalaCompileOptions.additionalParameters = ['-target
 compileTestScala { compileTestScala.scalaCompileOptions.additionalParameters = ['-target:jvm-1.6'] }
 
 dependencies {
-	compile 'org.scalaz:scalaz-core_2.10:7.0.4'
 	compile 'org.scala-lang:scala-compiler:2.10.3'
 	compile 'org.scala-lang:scala-library:2.10.3'
 
-	testCompile 'org.specs2:specs2_2.10:2.3.1'
+	testCompile 'org.specs2:specs2_2.10:2.3.7'
 }
 
 sourceSets {
