@@ -39,8 +39,8 @@ sourceSets {
 		output.classesDir = "${project.buildDir}/classes"
 		output.resourcesDir "${project.buildDir}/classes"
 
-		resources { srcDir 'source/core/resource' }
-		scala { srcDir 'source/core/scala' }
+		resources { srcDir 'source/main/resource' }
+		scala { srcDir 'source/main/scala' }
 	}
 	test {
 		output.classesDir = "${project.buildDir}/classes"

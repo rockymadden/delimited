@@ -1,4 +1,4 @@
-description = 'Simple CSV IO for Scala.'
+description = 'Simple CSV IO for Scala. Read, write, validate, and transform. Do so line-by-line, all-at-once, or via streams.'
 group = 'com.rockymadden.delimited'
 version = '0.0.0'
 
