@@ -167,6 +167,6 @@ final class ReadSpec extends SpecificationWithJUnit {
 }
 
 object ReadSpec {
-	private final val ReaderCsv = "build/classes/com/rockymadden/delimited/Reader.csv"
-	private final val NoneCsv = "build/classes/com/rockymadden/delimited/None.csv"
+	private final val ReaderCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Reader.csv"
+	private final val NoneCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/None.csv"
 }

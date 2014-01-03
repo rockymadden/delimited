@@ -22,7 +22,7 @@ object Read {
 
 
 	sealed abstract class Reader[A](protected val br: BufferedReader) extends Closeable {
-		final protected[delimited] val read: (BufferedReader => Option[String]) = (br) => {
+		protected[delimited] val read: (BufferedReader => Option[String]) = (br) => {
 			val line = br.readLine()
 			if (line == null) None else Some(line)
 		}

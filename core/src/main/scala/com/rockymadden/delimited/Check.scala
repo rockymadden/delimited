@@ -4,8 +4,8 @@ object Check {
 	import Line._
 
 
-	type DelimitedCheck = (DelimitedLine => Int)
-	type TextCheck = (TextLine => Int)
+	type DelimitedCheck = DelimitedLine => Int
+	type TextCheck = TextLine => Int
 
 
 	object DelimitedChecks {

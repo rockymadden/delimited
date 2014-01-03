@@ -1,4 +1,0 @@
-include 'core'
-
-rootProject.name = 'delimited'
-project(':core').name = 'delimited-core'

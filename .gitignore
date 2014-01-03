@@ -15,13 +15,11 @@
 .DS_Store
 
 # Editor ignores.
-.idea
+*.idea
 *.iml
 *.ipr
 *.iws
 
 # Build ignores.
-.gradle
-build
 out
 target

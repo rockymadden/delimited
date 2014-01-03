@@ -134,6 +134,6 @@ final class WriteSpec extends SpecificationWithJUnit {
 }
 
 object WriteSpec {
-	private final val ReaderCsv = "build/classes/com/rockymadden/delimited/Reader.csv"
-	private final val WriterCsv = "build/classes/com/rockymadden/delimited/Writer.csv"
+	private final val ReaderCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Reader.csv"
+	private final val WriterCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Writer.csv"
 }

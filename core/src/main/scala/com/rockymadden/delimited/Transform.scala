@@ -4,7 +4,7 @@ object Transform {
 	import scala.collection.immutable.NumericRange
 
 
-	type StringTransform = (String => String)
+	type StringTransform = String => String
 
 
 	@annotation.tailrec
