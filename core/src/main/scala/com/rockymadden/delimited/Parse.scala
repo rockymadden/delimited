@@ -18,7 +18,7 @@ object Parse {
 
 	final case class DelimitedParser(private val delimiter: Char) extends Parser {
 		object parse extends Extractor[DelimitedLine] {
-			private final val split: ((String, Char) => Vector[String]) = (string, delimiter) => {
+			private val split: ((String, Char) => Vector[String]) = (string, delimiter) => {
 				val vectorBuilder = new VectorBuilder[String]()
 				val stringBuilder = new StringBuilder()
 				val charArray = string.toCharArray

@@ -21,7 +21,18 @@ object Read {
 	implicit def stringToBufferedReader(s: String): BufferedReader = toBufferedReader(s)
 
 
-	sealed abstract class Reader[A](protected val br: BufferedReader) extends Closeable {
+	sealed trait Reader[A] extends Closeable {
+		override def close(): Unit
+
+		def readToStream(): Stream[A]
+
+		def readAll(): Option[Seq[A]]
+
+		def readLine(): Option[A]
+	}
+
+
+	sealed abstract class BasicReader[A](protected val br: BufferedReader) extends Reader[A] {
 		protected[delimited] val read: (BufferedReader => Option[String]) = (br) => {
 			val line = br.readLine()
 			if (line == null) None else Some(line)
@@ -29,29 +40,27 @@ object Read {
 
 		override def close(): Unit = if (br != null) br.close()
 
-		def readToStream(transforms: StringTransform*): Stream[A] =
-			Stream.continually(readLine(transforms: _*)).takeWhile(_.isDefined).map(_.get)
+		override def readToStream(): Stream[A] = Stream.continually(readLine()).takeWhile(_.isDefined).map(_.get)
 
-		def readAll(transforms: StringTransform*): Option[Seq[A]] = {
+		override def readAll(): Option[Seq[A]] = {
 			val buffer = new ListBuffer[A]()
 
-			Iterator.continually(readLine(transforms: _*)).takeWhile(_.isDefined).foreach{ buffer ++= _ }
+			Iterator.continually(readLine()).takeWhile(_.isDefined).foreach{ buffer ++= _ }
 
 			if (!buffer.isEmpty) Some(buffer.result()) else None
 		}
 
-		def readLine(transforms: StringTransform*): Option[A]
+		def readLine(): Option[A]
 	}
 
 
-	final case class DelimitedReader(
+	case class DelimitedReader(
 		bufferedReader: BufferedReader,
 		private val delimiter: Char = ','
-	) extends Reader[DelimitedLine](bufferedReader) {
+	) extends BasicReader[DelimitedLine](bufferedReader) {
 		private val parser = DelimitedParser(delimiter)
 
-		override def readLine(transforms: StringTransform*): Option[DelimitedLine] =
-			(read andThen parser.parse.apply)(br) map { _.map(transformString(_, transforms: _*)) }
+		override def readLine(): Option[DelimitedLine] = (read andThen parser.parse.apply)(br)
 	}
 
 
@@ -80,9 +89,24 @@ object Read {
 	}
 
 
-	final case class TextReader(bufferedReader: BufferedReader) extends Reader[TextLine](bufferedReader) {
-		override def readLine(transforms: StringTransform*): Option[TextLine] =
-			(read andThen TextParser.parse.apply)(br) map { transformString(_, transforms: _*) }
+	final class DelimitedReaderDecorator(val dr: DelimitedReader) {
+		val withTransform: (StringTransform => DelimitedReader) = (st) => new DelimitedReader(null) {
+			private val base: DelimitedReader = dr
+			private val transform: StringTransform = st
+
+			override def close(): Unit = base.close()
+
+			override def readToStream(): Stream[DelimitedLine] = base.readToStream().map(_.map(transform))
+
+			override def readAll(): Option[Seq[DelimitedLine]] = base.readAll().map(_.map(_.map(transform)))
+
+			override def readLine(): Option[DelimitedLine] = base.readLine().map(_.map(transform))
+		}
+	}
+
+
+	case class TextReader(bufferedReader: BufferedReader) extends BasicReader[TextLine](bufferedReader) {
+		override def readLine(): Option[TextLine] = (read andThen TextParser.parse.apply)(br)
 	}
 
 
@@ -92,6 +116,21 @@ object Read {
 
 			try f(reader)
 			finally reader.close()
+		}
+	}
+
+	final class TextReaderDecorator(val tr: TextReader) {
+		val withTransform: (StringTransform => TextReader) = (st) => new TextReader(null) {
+			private val base: TextReader = tr
+			private val transform: StringTransform = st
+
+			override def close(): Unit = base.close()
+
+			override def readToStream(): Stream[TextLine] = base.readToStream().map(transform)
+
+			override def readAll(): Option[Seq[TextLine]] = base.readAll().map(_.map(transform))
+
+			override def readLine(): Option[TextLine] = base.readLine().map(transform)
 		}
 	}
 }

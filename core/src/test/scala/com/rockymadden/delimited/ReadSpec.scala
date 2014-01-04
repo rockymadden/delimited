@@ -1,14 +1,15 @@
 package com.rockymadden.delimited
 
-import java.io.{BufferedReader, File}
 import org.specs2.mutable.SpecificationWithJUnit
-import scala.concurrent._
-import scala.concurrent.duration._
 
 final class ReadSpec extends SpecificationWithJUnit {
+	import java.io.{BufferedReader, File}
+	import scala.concurrent._
+	import scala.concurrent.duration._
 	import Line._
 	import Read._
 	import ReadSpec._
+	import Transform._
 
 	"toBufferedReader()" should {
 		"handle String" in {
@@ -104,7 +105,7 @@ final class ReadSpec extends SpecificationWithJUnit {
 		}
 	}
 
-	"DelimitedReader companion object using()" should {
+	"DelimitedReader using()" should {
 		"pass DelimitedReader" in {
 			val p1 = Promise[DelimitedLine]()
 			val p2 = Promise[DelimitedLine]()
@@ -117,7 +118,7 @@ final class ReadSpec extends SpecificationWithJUnit {
 		}
 	}
 
-	"DelimitedReader companion object usingWithHeader()" should {
+	"DelimitedReader usingWithHeader()" should {
 		"pass DelimitedReader and header map" in {
 			val p1 = Promise[Map[String, Int]]()
 			val p2 = Promise[DelimitedLine]()
@@ -137,6 +138,16 @@ final class ReadSpec extends SpecificationWithJUnit {
 		}
 	}
 
+	"DelimitedReaderDecorator withTransform()" should {
+		"return decorated DelimitedReader" in {
+			val reader = DelimitedReader(ReaderCsv) withTransform StringTransform.filterAlpha
+
+			try foreach(Iterator.continually(reader.readLine()).takeWhile(_.isDefined)) { line =>
+				line.get.find(_.indexOf("1") >= 0) must beNone
+			} finally reader.close()
+		}
+	}
+
 	"TextReader readLine()" should {
 		"handle empty lines" in {
 			val reader = TextReader(NoneCsv)
@@ -152,7 +163,7 @@ final class ReadSpec extends SpecificationWithJUnit {
 		}
 	}
 
-	"TextReader companion object using()" should {
+	"TextReader using()" should {
 		"pass TextReader" in {
 			val p1 = Promise[TextLine]()
 			val p2 = Promise[TextLine]()
@@ -164,9 +175,19 @@ final class ReadSpec extends SpecificationWithJUnit {
 			Await.result(p2.future, Duration(10, SECONDS)).length must beEqualTo(0)
 		}
 	}
+
+	"TextReaderDecorator withTransform()" should {
+		"return decorated TextReader" in {
+			val reader = TextReader(ReaderCsv) withTransform StringTransform.filterAlpha
+
+			try foreach(Iterator.continually(reader.readLine()).takeWhile(_.isDefined)) { line =>
+				line.get.indexOf("1") must beEqualTo(-1)
+			} finally reader.close()
+		}
+	}
 }
 
 object ReadSpec {
-	private final val ReaderCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Reader.csv"
-	private final val NoneCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/None.csv"
+	private val ReaderCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Reader.csv"
+	private val NoneCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/None.csv"
 }

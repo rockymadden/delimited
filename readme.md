@@ -1,7 +1,7 @@
 #delimited [![Build Status](https://travis-ci.org/rockymadden/delimited.png?branch=master)](http://travis-ci.org/rockymadden/delimited)
-Simple CSV IO for Scala. Read, write, validate, and transform. Do so line-by-line, all at once, or via streams. For anything serious, be sure to checkout [scalaz-stream](https://github.com/scalaz/scalaz-stream) instead.
+Simple CSV IO for Scala. Read, write, validate, and transform. Do so line-by-line, all at once, or via streams.
 
-* __Requirements:__ Scala 2.10.x
+* __Requirements:__ Scala 2.10+
 * __Documentation:__ [Scaladoc](http://rockymadden.com/delimited/scaladoc/)
 * __Issues:__ [Enhancements](https://github.com/rockymadden/delimited/issues?labels=accepted%2Cenhancement&page=1&state=open), [Questions](https://github.com/rockymadden/delimited/issues?labels=accepted%2Cquestion&page=1&state=open), [Bugs](https://github.com/rockymadden/delimited/issues?labels=accepted%2Cbug&page=1&state=open)
 * __Versioning:__ [Semantic Versioning v2.0](http://semver.org/)
@@ -12,14 +12,14 @@ The project is available on the [Maven Central Repository](http://search.maven.o
 
 __Simple Build Tool:__
 ```scala
-libraryDependencies += "com.rockymadden.delimited" % "delimited-core" % "0.0.0"
+libraryDependencies += "com.rockymadden.delimited" %% "delimited-core" % "0.0.0"
 ```
 
 ---
 
 __Gradle:__
 ```groovy
-compile 'com.rockymadden.delimited:delimited-core:0.0.0'
+compile 'com.rockymadden.delimited:delimited-core_2.10:0.0.0'
 ```
 
 ---
@@ -28,7 +28,7 @@ __Maven:__
 ```xml
 <dependency>
 	<groupId>com.rockymadden.delimited</groupId>
-	<artifactId>delimited-core</artifactId>
+	<artifactId>delimited-core_2.10</artifactId>
 	<version>0.0.0</version>
 </dependency>
 ```
@@ -123,49 +123,52 @@ DelimitedReader.using("path/to/file.csv") { => reader
 
 ---
 
-## Transform Usage
-Each read and write function accepts zero to many ```StringTransform```s. The ```StringTransforms``` object provides a handful of built-in filters and other useful transforms, which can be functionally composed. Any function meeting the type requirement of ```StringTransform```, which is a type alias to ```(String => String)```, will work.
+## Decorating
+It is possible to decorate readers and writers with additional functionality, this is provided by rich wrapping via implicits. Decorations include:
+
+* __withTransform:__ Transform line values after reading and/or before writing. A handful of pre-built transforms are located in the [transform module](https://github.com/rockymadden/delimited/blob/master/core/src/main/scala/com/rockymadden/delimited/Transform.scala). 
 
 ---
 
-__In this scenario, we only want to deal with ASCII characters (via built-in filter transform):__
+Non-decorated usage:
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
-	reader.readLine(StringTransforms.filterAscii)
+	// Do something with reader.
 }
 ```
 
 ---
 
-__In this scenario, we only want to deal with alphabetical ASCII characters (via functionally composed built-in filter transforms):__
+Apply a filter so that we only get alphabetical characters in each line:
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
-	reader.readLine(
-		StringTransforms.filterAscii andThen
-		StringTransforms.filterNotAlpha
-	)
+	decoratedReader = reader withTransform StringTransform.filterAlpha
+	
+	// Do something with decoratedReader.
 }
 ```
 
 ---
 
-__In this scenario, we only want to deal with nucleic acid notation characters (via custom transform):__
+Make your own:
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
-	reader.readLine((s) => s.toCharArray.filter(c =>
-		c == 'A' || c == 'C' || c == 'G' || c == 'T'
-	).mkString)
+	customTransform: StringTransform = (s) =>
+		s.toCharArray.filter(c => c == 'A' || c == 'C' || c == 'G' || c == 'T').mkString
+	decoratedReader = reader withTransform customTransform
+	
+	// Do something with decoratedReader.
 }
 ```
 
 ---
 
 ## Validator Usage
-```DelimitedValidator``` exists to ensure files pass one or more checks. The ```DelimitedChecks``` object provides a handful of built-in checks. Any function meeting the type requirement of ```DelimitedCheck```, which is a type alias to ```(DelimitedLine => Int)```, will work.
+Validators exist to ensure files pass one or more checks. A handful of pre-built checks are located in the [check module](https://github.com/rockymadden/delimited/blob/master/core/src/main/scala/com/rockymadden/delimited/Check.scala).
 
 ---
 
-__In this scenario, we want to ensure the number of fields in each line is consistent and that all fields have a length:__
+In this scenario, we want to ensure the number of fields in each line is consistent and that all fields have a length:
 ```scala
 val reader = DelimitedReader("path/to/file.csv")
 
@@ -177,7 +180,7 @@ DelimitedValidator(reader).validate(
 
 ---
 
-__In this scenario, we want to ensure all field lengths are consistent (e.g. each field has 2 characters):__
+In this scenario, we want to ensure all field lengths are consistent (e.g. each field has 2 characters):
 ```scala
 val reader = DelimitedReader("path/to/file.csv")
 

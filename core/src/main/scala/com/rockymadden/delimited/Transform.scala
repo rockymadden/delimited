@@ -4,28 +4,22 @@ object Transform {
 	import scala.collection.immutable.NumericRange
 
 
-	type StringTransform = String => String
+	type Transform[A] = (A => A)
+	type StringTransform = Transform[String]
 
 
-	@annotation.tailrec
-	def transformString(s: String, t: StringTransform*): String = { t match {
-		case Nil => s
-		case head :: tail => transformString(head(s), tail: _*)
-	}}
+	object StringTransform {
+		private val Ascii = NumericRange(0x00, 0x7F, 1)
+		private val ExtendedAscii = NumericRange(0x00, 0x7F, 1)
+		private val Latin = NumericRange(0x00, 0x24F, 1)
+		private val LowerCase = NumericRange(0x61, 0x7A, 1)
+		private val Numbers = NumericRange(0x30, 0x39, 1)
+		private val UpperCase = NumericRange(0x41, 0x5A, 1)
 
-
-	object StringTransforms {
-		private final val Ascii = NumericRange(0x00, 0x7F, 1)
-		private final val ExtendedAscii = NumericRange(0x00, 0x7F, 1)
-		private final val Latin = NumericRange(0x00, 0x24F, 1)
-		private final val LowerCase = NumericRange(0x61, 0x7A, 1)
-		private final val Numbers = NumericRange(0x30, 0x39, 1)
-		private final val UpperCase = NumericRange(0x41, 0x5A, 1)
-
-		private final val filter: ((String, (Char => Boolean)) => String) = (s, f) =>
+		private val filter: ((String, (Char => Boolean)) => String) = (s, f) =>
 			s.toCharArray.filter(c => f(c)).mkString
 
-		private final val filterNot: ((String, (Char => Boolean)) => String) = (s, f) =>
+		private val filterNot: ((String, (Char => Boolean)) => String) = (s, f) =>
 			s.toCharArray.filterNot(c => f(c)).mkString
 
 		val filterAlpha: StringTransform = (string) => filter(string, c => {

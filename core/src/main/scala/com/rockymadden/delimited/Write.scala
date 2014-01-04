@@ -20,29 +20,35 @@ object Write {
 	implicit def stringToBufferedWriter(s: String): BufferedWriter = toBufferedWriter(s)
 
 
-	sealed abstract class Writer[A](protected val bw: BufferedWriter) extends Closeable {
-		override def close(): Unit = if (bw != null) bw.close()
+	sealed trait Writer[A] extends Closeable {
+		override def close(): Unit
 
-		def writeFromStream(lines: Stream[A], transforms: StringTransform*): Unit =
-			lines.foreach { l => writeLine(Some(l), transforms: _*) }
+		def writeFromStream(ls: Stream[A]): Unit
 
-		def writeAll(lines: Option[Seq[A]], transforms: StringTransform*): Unit =
-			lines map { ls => ls foreach { l => writeLine(Some(l), transforms: _*) } }
+		def writeAll(ls: Option[Seq[A]]): Unit
 
-		def writeLine(line: Option[A], transforms: StringTransform*): Unit
+		def writeLine(l: Option[A]): Unit
 	}
 
 
-	final case class DelimitedWriter(
+	sealed abstract class BasicWriter[A](protected val bw: BufferedWriter) extends Writer[A] {
+		override def close(): Unit = if (bw != null) bw.close()
+
+		override def writeFromStream(ls: Stream[A]): Unit = ls.foreach { l => writeLine(Some(l)) }
+
+		override def writeAll(ls: Option[Seq[A]]): Unit = ls map { ls => ls foreach { l => writeLine(Some(l)) } }
+	}
+
+
+	case class DelimitedWriter(
 		bufferedWriter: BufferedWriter,
 		private val delimiter: Char = ','
-	) extends Writer[DelimitedLine](bufferedWriter) {
+	) extends BasicWriter[DelimitedLine](bufferedWriter) {
+		private val separator = System.getProperty("line.separator")
 		private val parser = DelimitedParser(delimiter)
 
-		override def writeLine(line: Option[DelimitedLine], transforms: StringTransform*): Unit = {
-			parser.parse.unapply(line map { seq =>
-				seq map { transformString(_, transforms: _*) }
-			}) map { s => bufferedWriter.write(s + System.getProperty("line.separator")) }
+		override def writeLine(line: Option[DelimitedLine]): Unit = {
+			parser.parse.unapply(line) map { s => bufferedWriter.write(s + separator) }
 		}
 	}
 
@@ -62,9 +68,30 @@ object Write {
 	}
 
 
-	final case class TextWriter(bufferedWriter: BufferedWriter) extends Writer[TextLine](bufferedWriter) {
-		override def writeLine(line: Option[TextLine], transforms: StringTransform*): Unit = line map { l =>
-			bufferedWriter.write(transformString(l, transforms: _*) + System.getProperty("line.separator"))
+	final class DelimitedWriterDecorator(val dw: DelimitedWriter) {
+		val withTransform: (StringTransform => DelimitedWriter) = (st) => new DelimitedWriter(null) {
+			private val base: DelimitedWriter = dw
+			private val transform: StringTransform = st
+
+			override def close(): Unit = base.close()
+
+			override def writeFromStream(ls: Stream[DelimitedLine]): Unit =
+				base.writeFromStream(ls.map(_.map(transform)))
+
+			override def writeAll(ls: Option[Seq[DelimitedLine]]): Unit =
+				base.writeAll(ls.map(_.map(_.map(transform))))
+
+			override def writeLine(l: Option[DelimitedLine]): Unit =
+				base.writeLine(l.map(_.map(transform)))
+		}
+	}
+
+
+	case class TextWriter(bufferedWriter: BufferedWriter) extends BasicWriter[TextLine](bufferedWriter) {
+		private val separator = System.getProperty("line.separator")
+
+		override def writeLine(line: Option[TextLine]): Unit = line map { l =>
+			bufferedWriter.write(l + separator)
 		}
 	}
 
@@ -75,6 +102,25 @@ object Write {
 
 			try f(writer)
 			finally writer.close()
+		}
+	}
+
+
+	final class TextWriterDecorator(val tw: TextWriter) {
+		val withTransform: (StringTransform => TextWriter) = (st) => new TextWriter(null) {
+			private val base: TextWriter = tw
+			private val transform: StringTransform = st
+
+			override def close(): Unit = base.close()
+
+			override def writeFromStream(ls: Stream[TextLine]): Unit =
+				base.writeFromStream(ls.map(transform))
+
+			override def writeAll(ls: Option[Seq[TextLine]]): Unit =
+				base.writeAll(ls.map(_.map(transform)))
+
+			override def writeLine(l: Option[TextLine]): Unit =
+				base.writeLine(l.map(transform))
 		}
 	}
 }

@@ -57,6 +57,6 @@ final class ValidateSpec extends SpecificationWithJUnit {
 }
 
 object ValidateSpec {
-	private final val ReaderCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Reader.csv"
-	private final val NoneCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/None.csv"
+	private val ReaderCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Reader.csv"
+	private val NoneCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/None.csv"
 }

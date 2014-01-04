@@ -1,12 +1,13 @@
 package com.rockymadden.delimited
 
-import java.io.{BufferedWriter, File}
 import org.specs2.mutable.SpecificationWithJUnit
-import scala.concurrent._
-import scala.concurrent.duration._
 
 final class WriteSpec extends SpecificationWithJUnit {
+	import java.io.{BufferedWriter, File}
+	import scala.concurrent._
+	import scala.concurrent.duration._
 	import Read._
+	import Transform._
 	import Write._
 	import WriteSpec._
 
@@ -51,7 +52,6 @@ final class WriteSpec extends SpecificationWithJUnit {
 		}
 	}
 
-
 	"DelimitedWriter writeFromStream()" should {
 		"handle lines" in {
 			val reader = DelimitedReader(ReaderCsv)
@@ -94,13 +94,32 @@ final class WriteSpec extends SpecificationWithJUnit {
 		}
 	}
 
-	"DelimitedWriter companion object using()" should {
+	"DelimitedWriter using()" should {
 		"pass DelimitedWriter" in {
 			val p = Promise[Boolean]()
 
 			DelimitedWriter.using(WriterCsv) { writer => p.success(true) }
 
 			Await.result(p.future, Duration(10, SECONDS)) must beTrue
+		}
+	}
+
+	"DelimitedWriterDecorator withTransform()" should {
+		"return decorated DelimitedWriter" in {
+			val reader = DelimitedReader(ReaderCsv)
+			val writer = DelimitedWriter(WriterCsv) withTransform StringTransform.filterAlpha
+
+			try writer.writeLine(reader.readLine())
+			finally {
+				reader.close()
+				writer.close()
+			}
+
+			val writerReader = DelimitedReader(WriterCsv)
+
+			try foreach(Iterator.continually(writerReader.readLine()).takeWhile(_.isDefined)) { line =>
+				line.get.find(_.indexOf("1") >= 0) must beNone
+			} finally writerReader.close()
 		}
 	}
 
@@ -122,7 +141,7 @@ final class WriteSpec extends SpecificationWithJUnit {
 		}
 	}
 
-	"TextWriter companion object using()" should {
+	"TextWriter using()" should {
 		"pass TextWriter" in {
 			val p = Promise[Boolean]()
 
@@ -131,9 +150,29 @@ final class WriteSpec extends SpecificationWithJUnit {
 			Await.result(p.future, Duration(10, SECONDS)) must beTrue
 		}
 	}
+
+	"TextWriterDecorator withTransform()" should {
+		"return decorated TextWriter" in {
+			val reader = TextReader(ReaderCsv)
+			val writer = TextWriter(WriterCsv) withTransform StringTransform.filterAlpha
+
+			try writer.writeLine(reader.readLine())
+			finally {
+				reader.close()
+				writer.close()
+			}
+
+			val writerReader = TextReader(WriterCsv)
+
+			try foreach(Iterator.continually(writerReader.readLine()).takeWhile(_.isDefined)) { line =>
+				line.get.indexOf("1") must beEqualTo(-1)
+			}
+			finally writerReader.close()
+		}
+	}
 }
 
 object WriteSpec {
-	private final val ReaderCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Reader.csv"
-	private final val WriterCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Writer.csv"
+	private val ReaderCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Reader.csv"
+	private val WriterCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Writer.csv"
 }

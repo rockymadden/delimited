@@ -5,99 +5,99 @@ import org.specs2.mutable.SpecificationWithJUnit
 final class TransformSpec extends SpecificationWithJUnit {
 	import Transform._
 
-	"StringTransforms filterAlpha()" should {
+	"StringTransform filterAlpha()" should {
 		"handle String" in {
-			StringTransforms.filterAlpha("aBc123" + 0x250.toChar) must beEqualTo("aBc")
+			StringTransform.filterAlpha("aBc123" + 0x250.toChar) must beEqualTo("aBc")
 		}
 	}
 
-	"StringTransforms filterNotAlpha()" should {
+	"StringTransform filterNotAlpha()" should {
 		"handle String" in {
-			StringTransforms.filterNotAlpha("aBc123" + 0x250.toChar) must beEqualTo("123" + 0x250.toChar)
+			StringTransform.filterNotAlpha("aBc123" + 0x250.toChar) must beEqualTo("123" + 0x250.toChar)
 		}
 	}
 
-	"StringTransforms filterAlphaNumeric()" should {
+	"StringTransform filterAlphaNumeric()" should {
 		"handle String" in {
-			StringTransforms.filterAlphaNumeric("aBc123" + 0x250.toChar) must beEqualTo("aBc123")
+			StringTransform.filterAlphaNumeric("aBc123" + 0x250.toChar) must beEqualTo("aBc123")
 		}
 	}
 
-	"StringTransforms filterNotAlphaNumeric()" should {
+	"StringTransform filterNotAlphaNumeric()" should {
 		"handle String" in {
-			StringTransforms.filterNotAlphaNumeric("aBc123" + 0x250.toChar) must beEqualTo("" + 0x250.toChar)
+			StringTransform.filterNotAlphaNumeric("aBc123" + 0x250.toChar) must beEqualTo("" + 0x250.toChar)
 		}
 	}
 
-	"StringTransforms filterAscii()" should {
+	"StringTransform filterAscii()" should {
 		"handle String" in {
-			StringTransforms.filterAscii("aBc" + 0x80.toChar) must beEqualTo("aBc")
+			StringTransform.filterAscii("aBc" + 0x80.toChar) must beEqualTo("aBc")
 		}
 	}
 
-	"StringTransforms filterNotAscii()" should {
+	"StringTransform filterNotAscii()" should {
 		"handle String" in {
-			StringTransforms.filterNotAscii("aBc" + 0x100.toChar) must beEqualTo("" + 0x100.toChar)
+			StringTransform.filterNotAscii("aBc" + 0x100.toChar) must beEqualTo("" + 0x100.toChar)
 		}
 	}
 
-	"StringTransforms filterExtendedAscii()" should {
+	"StringTransform filterExtendedAscii()" should {
 		"handle String" in {
-			StringTransforms.filterExtendedAscii("aBc" + 0x100.toChar) must beEqualTo("aBc")
+			StringTransform.filterExtendedAscii("aBc" + 0x100.toChar) must beEqualTo("aBc")
 		}
 	}
 
-	"StringTransforms filterNotExtendedAscii()" should {
+	"StringTransform filterNotExtendedAscii()" should {
 		"handle String" in {
-			StringTransforms.filterNotExtendedAscii("aBc" + 0x250.toChar) must beEqualTo("" + 0x250.toChar)
+			StringTransform.filterNotExtendedAscii("aBc" + 0x250.toChar) must beEqualTo("" + 0x250.toChar)
 		}
 	}
 
-	"StringTransforms filterLatin()" should {
+	"StringTransform filterLatin()" should {
 		"handle String" in {
-			StringTransforms.filterLatin("aBc" + 0x250.toChar) must beEqualTo("aBc")
+			StringTransform.filterLatin("aBc" + 0x250.toChar) must beEqualTo("aBc")
 		}
 	}
 
-	"StringTransforms filterNotLatin()" should {
+	"StringTransform filterNotLatin()" should {
 		"handle String" in {
-			StringTransforms.filterNotLatin("aBc" + 0x300.toChar) must beEqualTo("" + 0x300.toChar)
+			StringTransform.filterNotLatin("aBc" + 0x300.toChar) must beEqualTo("" + 0x300.toChar)
 		}
 	}
 
-	"StringTransforms filterLowerCase()" should {
+	"StringTransform filterLowerCase()" should {
 		"handle String" in {
-			StringTransforms.filterLowerCase("aBc123" + 0x250.toChar) must beEqualTo("ac")
+			StringTransform.filterLowerCase("aBc123" + 0x250.toChar) must beEqualTo("ac")
 		}
 	}
 
-	"StringTransforms filterNotLowerCase()" should {
+	"StringTransform filterNotLowerCase()" should {
 		"handle String" in {
-			StringTransforms.filterNotLowerCase("aBc123" + 0x250.toChar) must beEqualTo("B123" + 0x250.toChar)
+			StringTransform.filterNotLowerCase("aBc123" + 0x250.toChar) must beEqualTo("B123" + 0x250.toChar)
 		}
 	}
 
-	"StringTransforms filterNumeric()" should {
+	"StringTransform filterNumeric()" should {
 		"handle String" in {
-			StringTransforms.filterNumeric("aBc123" + 0x250.toChar) must beEqualTo("123")
+			StringTransform.filterNumeric("aBc123" + 0x250.toChar) must beEqualTo("123")
 		}
 	}
 
-	"StringTransforms filterNotNumeric()" should {
+	"StringTransform filterNotNumeric()" should {
 		"handle String" in {
-			StringTransforms.filterNotNumeric("aBc123" + 0x250.toChar) must beEqualTo("aBc" + 0x250.toChar)
+			StringTransform.filterNotNumeric("aBc123" + 0x250.toChar) must beEqualTo("aBc" + 0x250.toChar)
 		}
 	}
 
-	"StringTransforms filterUpperCase()" should {
+	"StringTransform filterUpperCase()" should {
 		"handle String" in {
-			StringTransforms.filterUpperCase("aBc123" + 0x250.toChar) must beEqualTo("B")
+			StringTransform.filterUpperCase("aBc123" + 0x250.toChar) must beEqualTo("B")
 		}
 	}
 
-	"StringTransforms filterNotUpperCase()" should {
+	"StringTransform filterNotUpperCase()" should {
 		"handle String" in {
-			StringTransforms.filterNotUpperCase("aBc123" + 0x250.toChar) must beEqualTo("ac123" + 0x250.toChar)
+			StringTransform.filterNotUpperCase("aBc123" + 0x250.toChar) must beEqualTo("ac123" + 0x250.toChar)
 		}
 	}
 }
