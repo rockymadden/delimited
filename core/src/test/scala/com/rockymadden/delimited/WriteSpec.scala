@@ -107,7 +107,7 @@ final class WriteSpec extends SpecificationWithJUnit {
 	"DelimitedWriterDecorator withTransform()" should {
 		"return decorated DelimitedWriter" in {
 			val reader = DelimitedReader(ReaderCsv)
-			val writer = DelimitedWriter(WriterCsv) withTransform StringTransform.filterAlpha
+			val writer = DelimitedWriter(DecoratedWriterCsv) withTransform StringTransform.filterAlpha
 
 			try writer.writeLine(reader.readLine())
 			finally {
@@ -115,7 +115,7 @@ final class WriteSpec extends SpecificationWithJUnit {
 				writer.close()
 			}
 
-			val writerReader = DelimitedReader(WriterCsv)
+			val writerReader = DelimitedReader(DecoratedWriterCsv)
 
 			try foreach(Iterator.continually(writerReader.readLine()).takeWhile(_.isDefined)) { line =>
 				line.get.find(_.indexOf("1") >= 0) must beNone
@@ -154,7 +154,7 @@ final class WriteSpec extends SpecificationWithJUnit {
 	"TextWriterDecorator withTransform()" should {
 		"return decorated TextWriter" in {
 			val reader = TextReader(ReaderCsv)
-			val writer = TextWriter(WriterCsv) withTransform StringTransform.filterAlpha
+			val writer = TextWriter(DecoratedWriterCsv) withTransform StringTransform.filterAlpha
 
 			try writer.writeLine(reader.readLine())
 			finally {
@@ -162,7 +162,7 @@ final class WriteSpec extends SpecificationWithJUnit {
 				writer.close()
 			}
 
-			val writerReader = TextReader(WriterCsv)
+			val writerReader = TextReader(DecoratedWriterCsv)
 
 			try foreach(Iterator.continually(writerReader.readLine()).takeWhile(_.isDefined)) { line =>
 				line.get.indexOf("1") must beEqualTo(-1)
@@ -173,6 +173,7 @@ final class WriteSpec extends SpecificationWithJUnit {
 }
 
 object WriteSpec {
+	private val DecoratedWriterCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/DecoratedWriter.csv"
 	private val ReaderCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Reader.csv"
 	private val WriterCsv = "core/target/scala-2.10/test-classes/com/rockymadden/delimited/Writer.csv"
 }
