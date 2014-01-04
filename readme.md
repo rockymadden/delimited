@@ -12,14 +12,14 @@ The project is available on the [Maven Central Repository](http://search.maven.o
 
 __Simple Build Tool:__
 ```scala
-libraryDependencies += "com.rockymadden.delimited" %% "delimited-core" % "0.0.0"
+libraryDependencies += "com.rockymadden.delimited" %% "delimited-core" % "0.1.0"
 ```
 
 ---
 
 __Gradle:__
 ```groovy
-compile 'com.rockymadden.delimited:delimited-core_2.10:0.0.0'
+compile 'com.rockymadden.delimited:delimited-core_2.10:0.1.0'
 ```
 
 ---
@@ -29,7 +29,7 @@ __Maven:__
 <dependency>
 	<groupId>com.rockymadden.delimited</groupId>
 	<artifactId>delimited-core_2.10</artifactId>
-	<version>0.0.0</version>
+	<version>0.1.0</version>
 </dependency>
 ```
 
@@ -46,7 +46,7 @@ DelimitedReader.using("path/to/file.csv") { reader =>
 	Iterator.continually(reader.readLine()).takeWhile(_.isDefined).foreach(println)
 }
 ```
-The ```readLine``` function returns ```Option[DelimitedLine]```. The end of file is indicated by the return of ```None``` rather than ```Some```. 
+The ```readLine``` function returns ```Option[DelimitedLine]```. The end of file is indicated by the return of ```None``` rather than ```Some```.
 
 ---
 
@@ -126,7 +126,7 @@ DelimitedReader.using("path/to/file.csv") { => reader
 ## Decorating
 It is possible to decorate readers and writers with additional functionality, this is provided by rich wrapping via implicits. Decorations include:
 
-* __withTransform:__ Transform line values after reading and/or before writing. A handful of pre-built transforms are located in the [transform module](https://github.com/rockymadden/delimited/blob/master/core/src/main/scala/com/rockymadden/delimited/Transform.scala). 
+* __withTransform:__ Transform line values after reading and/or before writing. A handful of pre-built transforms are located in the [transform module](https://github.com/rockymadden/delimited/blob/master/core/src/main/scala/com/rockymadden/delimited/Transform.scala).
 
 ---
 
@@ -143,7 +143,7 @@ Apply a filter so that we only get alphabetical characters in each line:
 ```scala
 DelimitedReader.using("path/to/file.csv") { reader =>
 	decoratedReader = reader withTransform StringTransform.filterAlpha
-	
+
 	// Do something with decoratedReader.
 }
 ```
@@ -156,7 +156,7 @@ DelimitedReader.using("path/to/file.csv") { reader =>
 	customTransform: StringTransform = (s) =>
 		s.toCharArray.filter(c => c == 'A' || c == 'C' || c == 'G' || c == 'T').mkString
 	decoratedReader = reader withTransform customTransform
-	
+
 	// Do something with decoratedReader.
 }
 ```
