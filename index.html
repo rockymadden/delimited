@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>delimited by rockymadden</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">delimited</h1>
+      <h2 class="project-tagline">Simple CSV I/O for Scala. Read, write, validate, and transform. Do so line-by-line, all-at-once, or via streams.</h2>
+      <a href="https://github.com/rockymadden/delimited" class="btn">View on GitHub</a>
+      <a href="https://github.com/rockymadden/delimited/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/rockymadden/delimited/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <ul>
+<li>
+<strong>Requirements:</strong> Scala 2.10+</li>
+<li>
+<strong>Documentation:</strong> <a href="http://rockymadden.com/delimited/scaladoc/">Scaladoc</a>
+</li>
+<li>
+<strong>Issues:</strong> <a href="https://github.com/rockymadden/delimited/issues?labels=accepted%2Cenhancement&amp;page=1&amp;state=open">Enhancements</a>, <a href="https://github.com/rockymadden/delimited/issues?labels=accepted%2Cquestion&amp;page=1&amp;state=open">Questions</a>, <a href="https://github.com/rockymadden/delimited/issues?labels=accepted%2Cbug&amp;page=1&amp;state=open">Bugs</a>
+</li>
+<li>
+<strong>Versioning:</strong> <a href="http://semver.org/">Semantic Versioning v2.0</a>
+</li>
+</ul>
+
+<h2>
+<a id="depending-upon" class="anchor" href="#depending-upon" aria-hidden="true"><span class="octicon octicon-link"></span></a>Depending upon</h2>
+
+<p>The project is available on the <a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.rockymadden.delimited%22">Maven Central Repository</a>. Adding a dependency to the core sub-project in various build systems (add other sub-projects as needed):</p>
+
+<p><strong>Simple Build Tool:</strong></p>
+
+<div class="highlight highlight-scala"><pre>libraryDependencies <span class="pl-k">+</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>com.rockymadden.delimited<span class="pl-pds">"</span></span> <span class="pl-k">%%</span> <span class="pl-s"><span class="pl-pds">"</span>delimited-core<span class="pl-pds">"</span></span> <span class="pl-k">%</span> <span class="pl-s"><span class="pl-pds">"</span>0.1.0<span class="pl-pds">"</span></span></pre></div>
+
+<hr>
+
+<p><strong>Gradle:</strong></p>
+
+<div class="highlight highlight-groovy"><pre>compile <span class="pl-s"><span class="pl-pds">'</span>com.rockymadden.delimited:delimited-core_2.10:0.1.0<span class="pl-pds">'</span></span></pre></div>
+
+<hr>
+
+<p><strong>Maven:</strong></p>
+
+<div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">dependency</span>&gt;
+    &lt;<span class="pl-ent">groupId</span>&gt;com.rockymadden.delimited&lt;/<span class="pl-ent">groupId</span>&gt;
+    &lt;<span class="pl-ent">artifactId</span>&gt;delimited-core_2.10&lt;/<span class="pl-ent">artifactId</span>&gt;
+    &lt;<span class="pl-ent">version</span>&gt;0.1.0&lt;/<span class="pl-ent">version</span>&gt;
+&lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
+
+<hr>
+
+<h2>
+<a id="reader-usage" class="anchor" href="#reader-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Reader Usage</h2>
+
+<p>The recommended usage of <code>DelimitedReader</code> is via the loan pattern, which is provided by functions in its companion object (shown below). Loaned readers have automatic resource clean up. Read functions ultimately return <code>DelimitedLine</code>s, which is a type alias to <code>IndexedSeq[String]</code>.</p>
+
+<hr>
+
+<p><strong>Line-by-line:</strong></p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-en">DelimitedReader</span>.using(<span class="pl-s"><span class="pl-pds">"</span>path/to/file.csv<span class="pl-pds">"</span></span>) { reader <span class="pl-k">=&gt;</span>
+    <span class="pl-en">Iterator</span>.continually(reader.readLine()).takeWhile(_.isDefined).foreach(println)
+}</pre></div>
+
+<p>The <code>readLine</code> function returns <code>Option[DelimitedLine]</code>. The end of file is indicated by the return of <code>None</code> rather than <code>Some</code>.</p>
+
+<hr>
+
+<p><strong>All-at-once:</strong></p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-en">DelimitedReader</span>.using(<span class="pl-s"><span class="pl-pds">"</span>path/to/file.csv<span class="pl-pds">"</span></span>) { reader <span class="pl-k">=&gt;</span>
+    reader.readAll().foreach(_.foreach(println))
+}</pre></div>
+
+<p>The <code>readAll</code> function returns <code>Option[Seq[DelimitedLine]]</code>.</p>
+
+<hr>
+
+<p><strong>Via stream:</strong></p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-en">DelimitedReader</span>.using(<span class="pl-s"><span class="pl-pds">"</span>path/to/file.csv<span class="pl-pds">"</span></span>) { reader <span class="pl-k">=&gt;</span>
+    reader.readToStream().take(<span class="pl-c1">2</span>).foreach(println)
+}</pre></div>
+
+<p>The <code>readToStream</code> function returns <code>Stream[DelimitedLine]</code>.</p>
+
+<hr>
+
+<p><strong>With header:</strong></p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-en">DelimitedReader</span>.usingWithHeader(<span class="pl-s"><span class="pl-pds">"</span>path/to/file.csv<span class="pl-pds">"</span></span>) { (reader, header) <span class="pl-k">=&gt;</span>
+    reader.readLine() map { line <span class="pl-k">=&gt;</span>
+        <span class="pl-k">val</span> <span class="pl-en">field0</span> <span class="pl-k">=</span> line(header(<span class="pl-s"><span class="pl-pds">"</span>field0<span class="pl-pds">"</span></span>)))
+        <span class="pl-k">val</span> <span class="pl-en">field1</span> <span class="pl-k">=</span> line(header(<span class="pl-s"><span class="pl-pds">"</span>field1<span class="pl-pds">"</span></span>)))
+    }
+}</pre></div>
+
+<p>The header type is <code>Map[String, Int]</code>. It maps field values in the first line to their respective index.</p>
+
+<hr>
+
+<h2>
+<a id="writer-usage" class="anchor" href="#writer-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Writer Usage</h2>
+
+<p>The recommended usage of <code>DelimitedWriter</code> is via the loan pattern, which is provided by functions in its companion object (shown below). Loaned writers have automatic resource clean up.</p>
+
+<hr>
+
+<p><strong>Line-by-line:</strong></p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-en">DelimitedWriter</span>.using(<span class="pl-s"><span class="pl-pds">"</span>path/to/file.csv<span class="pl-pds">"</span></span>) { writer <span class="pl-k">=&gt;</span>
+    <span class="pl-k">val</span> <span class="pl-en">line</span> <span class="pl-k">=</span> <span class="pl-en">Some</span>(<span class="pl-en">Vector</span>(<span class="pl-s"><span class="pl-pds">"</span>field0<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>field1<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>field2<span class="pl-pds">"</span></span>))
+    writer.writeLine(line)
+}</pre></div>
+
+<hr>
+
+<p><strong>All-at-once:</strong></p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-en">DelimitedWriter</span>.using(<span class="pl-s"><span class="pl-pds">"</span>path/to/file.csv<span class="pl-pds">"</span></span>) { writer <span class="pl-k">=&gt;</span>
+    <span class="pl-k">val</span> <span class="pl-en">lines</span> <span class="pl-k">=</span> <span class="pl-en">Some</span>(<span class="pl-en">Seq</span>(
+        <span class="pl-en">Vector</span>(<span class="pl-s"><span class="pl-pds">"</span>field0<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>field1<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>field2<span class="pl-pds">"</span></span>),
+        <span class="pl-en">Vector</span>(<span class="pl-s"><span class="pl-pds">"</span>field0<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>field1<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>field2<span class="pl-pds">"</span></span>)
+    ))
+    writer.writeAll(lines)
+}</pre></div>
+
+<hr>
+
+<p><strong>Via stream:</strong></p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-en">DelimitedReader</span>.using(<span class="pl-s"><span class="pl-pds">"</span>path/to/file.csv<span class="pl-pds">"</span></span>) { <span class="pl-k">=&gt;</span> reader
+    <span class="pl-en">DelimitedWriter</span>.using(<span class="pl-s"><span class="pl-pds">"</span>path/to/anotherfile.csv<span class="pl-pds">"</span></span>) { writer <span class="pl-k">=&gt;</span>
+        <span class="pl-k">val</span> <span class="pl-en">lines</span> <span class="pl-k">=</span> reader.readToStream()
+        writer.writeFromStream(lines)
+    }
+}</pre></div>
+
+<hr>
+
+<h2>
+<a id="decorating" class="anchor" href="#decorating" aria-hidden="true"><span class="octicon octicon-link"></span></a>Decorating</h2>
+
+<p>It is possible to decorate readers and writers with additional functionality, this is provided by rich wrapping via implicits. Decorations include:</p>
+
+<ul>
+<li>
+<strong>withTransform:</strong> Transform line values after reading and/or before writing. A handful of pre-built transforms are located in the <a href="https://github.com/rockymadden/delimited/blob/master/core/src/main/scala/com/rockymadden/delimited/Transform.scala">transform module</a>.</li>
+</ul>
+
+<hr>
+
+<p>Non-decorated usage:</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-en">DelimitedReader</span>.using(<span class="pl-s"><span class="pl-pds">"</span>path/to/file.csv<span class="pl-pds">"</span></span>) { reader <span class="pl-k">=&gt;</span>
+    <span class="pl-c">// Do something with reader.</span>
+}</pre></div>
+
+<hr>
+
+<p>Apply a filter so that we only get alphabetical characters in each line:</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-en">DelimitedReader</span>.using(<span class="pl-s"><span class="pl-pds">"</span>path/to/file.csv<span class="pl-pds">"</span></span>) { reader <span class="pl-k">=&gt;</span>
+    decoratedReader <span class="pl-k">=</span> reader withTransform <span class="pl-en">StringTransform</span>.filterAlpha
+
+    <span class="pl-c">// Do something with decoratedReader.</span>
+}</pre></div>
+
+<hr>
+
+<p>Make your own:</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-en">DelimitedReader</span>.using(<span class="pl-s"><span class="pl-pds">"</span>path/to/file.csv<span class="pl-pds">"</span></span>) { reader <span class="pl-k">=&gt;</span>
+    <span class="pl-v">customTransform</span>: <span class="pl-en">StringTransform</span> <span class="pl-k">=</span> (s) <span class="pl-k">=&gt;</span>
+        s.toCharArray.filter(c <span class="pl-k">=&gt;</span> c <span class="pl-k">==</span> <span class="pl-c1">'A'</span> <span class="pl-k">||</span> c <span class="pl-k">==</span> <span class="pl-c1">'C'</span> <span class="pl-k">||</span> c <span class="pl-k">==</span> <span class="pl-c1">'G'</span> <span class="pl-k">||</span> c <span class="pl-k">==</span> <span class="pl-c1">'T'</span>).mkString
+    decoratedReader <span class="pl-k">=</span> reader withTransform customTransform
+
+    <span class="pl-c">// Do something with decoratedReader.</span>
+}</pre></div>
+
+<hr>
+
+<h2>
+<a id="validator-usage" class="anchor" href="#validator-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Validator Usage</h2>
+
+<p>Validators exist to ensure files pass one or more checks. A handful of pre-built checks are located in the <a href="https://github.com/rockymadden/delimited/blob/master/core/src/main/scala/com/rockymadden/delimited/Check.scala">check module</a>.</p>
+
+<hr>
+
+<p>In this scenario, we want to ensure the number of fields in each line is consistent and that all fields have a length:</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">val</span> <span class="pl-en">reader</span> <span class="pl-k">=</span> <span class="pl-en">DelimitedReader</span>(<span class="pl-s"><span class="pl-pds">"</span>path/to/file.csv<span class="pl-pds">"</span></span>)
+
+<span class="pl-en">DelimitedValidator</span>(reader).validate(
+    <span class="pl-en">DelimitedChecks</span>.checkFieldCountConsistent,
+    <span class="pl-en">DelimitedChecks</span>.checkFieldsHaveLength
+)</pre></div>
+
+<hr>
+
+<p>In this scenario, we want to ensure all field lengths are consistent (e.g. each field has 2 characters):</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">val</span> <span class="pl-en">reader</span> <span class="pl-k">=</span> <span class="pl-en">DelimitedReader</span>(<span class="pl-s"><span class="pl-pds">"</span>path/to/file.csv<span class="pl-pds">"</span></span>)
+
+<span class="pl-en">DelimitedValidator</span>(reader).validate(<span class="pl-en">DelimitedChecks</span>.checkFieldsLengthConsistent)</pre></div>
+
+<hr>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+<pre><code>The MIT License (MIT)
+
+Copyright (c) 2013 Rocky Madden (http://rockymadden.com/)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+</code></pre>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/rockymadden/delimited">delimited</a> is maintained by <a href="https://github.com/rockymadden">rockymadden</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
+
